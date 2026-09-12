@@ -1,0 +1,30 @@
+name: Build Chunky2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+
+      - name: Build
+        run: mvn -B clean package
+
+      - name: Upload Chunky2 JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chunky2-Paper-1.12.2
+          path: target/Chunky2-1.12.2.jar
+          if-no-files-found: error
