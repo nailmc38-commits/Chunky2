@@ -1,8 +1,8 @@
 name: Chunky2
 main: com.secret.chunky2.Chunky2Plugin
-version: 1.0.0
+version: 1.1.0
 author: Secret_gamer38
-description: Keeps chunks around all tamed wolves loaded on Paper 1.12.2.
+description: Keeps chunks around tamed wolves loaded, prevents wolf fall damage, and buffs owned wolves after /wolf unsit on Paper 1.12.2.
 commands:
   chunkywolves:
     description: Shows or reloads Chunky2 wolf chunk-loader status.
