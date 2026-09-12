@@ -6,15 +6,22 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTameEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
@@ -61,7 +68,7 @@ public final class Chunky2Plugin extends JavaPlugin implements Listener, Command
             }
         }, saveInterval, saveInterval);
 
-        getLogger().info("Chunky2 enabled. Tamed wolves now keep chunks loaded. Radius: " + chunkRadius);
+        getLogger().info("Chunky2 enabled. Tamed wolves keep chunks loaded, ignore fall damage, and /wolf unsit grants Speed II + Strength II.");
     }
 
     @Override
@@ -171,6 +178,53 @@ public final class Chunky2Plugin extends JavaPlugin implements Listener, Command
     public void onWolfDeath(EntityDeathEvent event) {
         if (event.getEntity() instanceof Wolf) {
             scheduleRefresh();
+        }
+    }
+
+    // Do not register, replace, cancel, or rewrite /wolf. We only observe the command so
+    // whatever plugin owns/hides /wolf keeps its normal behavior and visibility.
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    public void onWolfUnsitCommand(PlayerCommandPreprocessEvent event) {
+        if (!event.getMessage().trim().equalsIgnoreCase("/wolf unsit")) {
+            return;
+        }
+
+        final UUID playerId = event.getPlayer().getUniqueId();
+
+        // Run one tick later so the real /wolf plugin gets to unsit the wolves first.
+        Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+            @Override
+            public void run() {
+                buffOwnedWolves(playerId);
+            }
+        }, 1L);
+    }
+
+    private void buffOwnedWolves(UUID playerId) {
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (!(entity instanceof Wolf)) continue;
+
+                Wolf wolf = (Wolf) entity;
+                if (!wolf.isTamed() || wolf.isDead()) continue;
+
+                AnimalTamer owner = wolf.getOwner();
+                if (owner == null || !playerId.equals(owner.getUniqueId())) continue;
+
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, false), true);
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 1, false), true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onTamedWolfFallDamage(EntityDamageEvent event) {
+        if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
+        if (!(event.getEntity() instanceof Wolf)) return;
+
+        Wolf wolf = (Wolf) event.getEntity();
+        if (wolf.isTamed()) {
+            event.setCancelled(true);
         }
     }
 
