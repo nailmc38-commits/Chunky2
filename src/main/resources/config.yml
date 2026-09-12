@@ -1,0 +1,13 @@
+# Radius in chunks around each tamed wolf.
+# 0 = only the wolf's current chunk
+# 1 = 3x3 area (recommended so wolves can cross chunk borders)
+chunk-radius: 1
+
+# How often to rescan loaded entities for tamed wolves.
+scan-interval-ticks: 40
+
+# How often to save remembered wolf-loaded chunks for restart recovery.
+save-interval-ticks: 600
+
+# Managed automatically. Do not edit while the server is running.
+remembered-chunks: []
