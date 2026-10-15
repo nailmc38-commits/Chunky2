@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "amethystglow",
+  "version": "${version}",
+  "name": "Amethyst Glow",
+  "description": "Highlights nearby amethyst blocks and crystal buds in loaded chunks, even behind walls.",
+  "environment": "client",
+  "authors": ["SecretCPVP"],
+  "entrypoints": {"client": ["com.secretcpvp.amethystglow.AmethystGlow"]},
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
