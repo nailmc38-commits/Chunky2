@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "chunkfinder",
+  "version": "${version}",
+  "name": "Chunk Finder",
+  "description": "Visual scanner for loaded Minecraft chunks. Press F9 to configure.",
+  "authors": ["SecretCPVP"],
+  "environment": "client",
+  "entrypoints": {"client": ["com.secretcpvp.chunkfinder.ChunkFinderClient"]},
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
